@@ -38,12 +38,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
+            val mainViewModel: MainViewModel = viewModel()
+            val settings by mainViewModel.settings.collectAsState()
+
+            MyApplicationTheme(darkTheme = settings.isDarkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ChadharAluminiumApp()
+                    ChadharAluminiumApp(mainViewModel = mainViewModel)
                 }
             }
         }
@@ -51,9 +54,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ChadharAluminiumApp() {
+fun ChadharAluminiumApp(mainViewModel: MainViewModel = viewModel()) {
     val navController = rememberNavController()
-    val mainViewModel: MainViewModel = viewModel()
     val settings by mainViewModel.settings.collectAsState()
 
     NavHost(

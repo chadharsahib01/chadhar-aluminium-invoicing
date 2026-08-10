@@ -23,6 +23,7 @@ data class BusinessSettings(
     val hasExportedBackup: Boolean = false,
     val appPin: String? = null,
     val isPinEnabled: Boolean = false,
+    val isDarkMode: Boolean = false,
     val pinCode: String = "",
     val lastNumberingYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 ) {
@@ -70,6 +71,7 @@ class SettingsRepository(context: Context) {
             hasExportedBackup = prefs.getBoolean("hasExportedBackup", false),
             appPin = prefs.getString("appPin", null),
             isPinEnabled = prefs.getBoolean("isPinEnabled", false),
+            isDarkMode = prefs.getBoolean("isDarkMode", false),
             pinCode = prefs.getString("pinCode", "") ?: "",
             lastNumberingYear = currentYear
         )
@@ -92,6 +94,7 @@ class SettingsRepository(context: Context) {
             .putBoolean("hasExportedBackup", newSettings.hasExportedBackup)
             .putString("appPin", newSettings.appPin)
             .putBoolean("isPinEnabled", newSettings.isPinEnabled)
+            .putBoolean("isDarkMode", newSettings.isDarkMode)
             .putString("pinCode", newSettings.pinCode)
             .putInt("lastNumberingYear", newSettings.lastNumberingYear)
             .apply()

@@ -58,6 +58,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import com.example.data.entity.CatalogItemEntity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -109,6 +110,7 @@ fun NewDocumentScreen(
     val catalogItems by viewModel.catalogItems.collectAsState()
 
     var showAddCustomDialog by remember { mutableStateOf(false) }
+    var pendingSelectedItem by remember { mutableStateOf<CatalogItemEntity?>(null) }
     var showUnsavedDialog by remember { mutableStateOf(false) }
     var catalogDropdownExpanded by remember { mutableStateOf(false) }
     var catalogSearchText by remember { mutableStateOf("") }
@@ -243,10 +245,25 @@ fun NewDocumentScreen(
 
     if (showAddCustomDialog) {
         AddCustomItemDialog(
-            onAddItem = { name, unit, rate ->
-                viewModel.addCustomCatalogItem(name, unit, rate)
+            onAddItem = { name, unit, rate, quantity ->
+                viewModel.addCustomCatalogItem(name, unit, rate, quantity, addToDraft = true)
             },
             onDismiss = { showAddCustomDialog = false }
+        )
+    }
+
+    pendingSelectedItem?.let { selectedItem ->
+        com.example.ui.components.ItemQuantityDialog(
+            itemName = selectedItem.name,
+            unit = selectedItem.defaultUnit,
+            rate = selectedItem.defaultRate,
+            onConfirm = { quantity, finalRate ->
+                viewModel.addItemToDraft(selectedItem.name, selectedItem.defaultUnit, finalRate, quantity)
+                pendingSelectedItem = null
+            },
+            onDismiss = {
+                pendingSelectedItem = null
+            }
         )
     }
 
@@ -557,7 +574,7 @@ fun NewDocumentScreen(
                                             }
                                         },
                                         onClick = {
-                                            viewModel.addItemToDraft(item.name, item.defaultUnit, item.defaultRate, 1.0)
+                                            pendingSelectedItem = item
                                             catalogSearchText = ""
                                             catalogDropdownExpanded = false
                                         }

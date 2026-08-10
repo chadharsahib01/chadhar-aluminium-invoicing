@@ -962,7 +962,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addCustomCatalogItem(name: String, unit: String, rate: Double) {
+    fun addCustomCatalogItem(
+        name: String,
+        unit: String,
+        rate: Double,
+        quantity: Double = 1.0,
+        addToDraft: Boolean = true
+    ) {
         viewModelScope.launch {
             val catalogItem = CatalogItemEntity(
                 name = name,
@@ -971,7 +977,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 isCustom = true
             )
             catalogRepository.insertCatalogItem(catalogItem)
-            addItemToDraft(name, unit, rate, 1.0)
+            if (addToDraft) {
+                addItemToDraft(name, unit, rate, quantity)
+            }
         }
     }
 

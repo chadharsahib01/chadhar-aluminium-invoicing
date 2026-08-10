@@ -26,8 +26,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Store
@@ -148,8 +150,8 @@ fun SettingsScreen(
 
     if (showAddCatalogDialog) {
         AddCustomItemDialog(
-            onAddItem = { name, unit, rate ->
-                viewModel.addCustomCatalogItem(name, unit, rate)
+            onAddItem = { name, unit, rate, _ ->
+                viewModel.addCustomCatalogItem(name, unit, rate, addToDraft = false)
             },
             onDismiss = { showAddCatalogDialog = false }
         )
@@ -496,6 +498,53 @@ fun SettingsScreen(
                         ) {
                             Text("SAVE PIN SETTINGS", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
+                    }
+                }
+            }
+
+            // --- SECTION 1D: DARK MODE APPERANCE ---
+            item {
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = BorderStroke(1.dp, SleekCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = if (settings.isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                                contentDescription = null,
+                                tint = PrimaryBlue,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Dark Mode Theme (ڈارک موڈ)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = Slate900
+                                )
+                                Text(
+                                    text = if (settings.isDarkMode) "Enabled" else "Disabled",
+                                    fontSize = 12.sp,
+                                    color = Slate500
+                                )
+                            }
+                        }
+
+                        androidx.compose.material3.Switch(
+                            checked = settings.isDarkMode,
+                            onCheckedChange = { isChecked ->
+                                viewModel.updateSettings(settings.copy(isDarkMode = isChecked))
+                            }
+                        )
                     }
                 }
             }
