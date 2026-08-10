@@ -1,0 +1,6 @@
+{
+  "name": "Chadhar Aluminium - Invoices & Quotations",
+  "description": "Offline-first app for Chadhar Aluminium to easily create, preview, and share professional Invoices and Quotations on WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
