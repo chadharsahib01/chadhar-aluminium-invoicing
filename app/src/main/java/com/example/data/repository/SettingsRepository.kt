@@ -9,10 +9,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.Calendar
 
 data class BusinessSettings(
-    val businessName: String = "Chadhar Aluminium",
+    val businessName: String = "CHADHAR ALUMINIUM",
     val ownerName: String = "Tasawar Ali Chadhar",
     val phoneNumber: String = "0300-4439436",
-    val address: String = "",
+    val phoneNumber2: String = "0318-4439436",
+    val address: String = "Shop No # 1, Pak Watan Market, Main Road Ghori VIP, Express Way Islamabad",
+    val email: String = "tasawrali04@gmail.com",
+    val website: String = "www.chadharaluminium.com.pk",
     val logoUri: String? = null,
     val stampUri: String? = null,
     val defaultNotes: String = "50% advance required. Rate valid for 15 days.",
@@ -20,6 +23,7 @@ data class BusinessSettings(
     val showTutorial: Boolean = true,
     val nextInvoiceNumber: Int = 1,
     val nextQuotationNumber: Int = 1,
+    val nextSheetQuotationNumber: Int = 1,
     val hasExportedBackup: Boolean = false,
     val appPin: String? = null,
     val isPinEnabled: Boolean = false,
@@ -43,23 +47,31 @@ class SettingsRepository(context: Context) {
         
         var nextInv = prefs.getInt("nextInvoiceNumber", 1)
         var nextQuo = prefs.getInt("nextQuotationNumber", 1)
+        var nextSheetQuo = prefs.getInt("nextSheetQuotationNumber", 1)
 
         // Yearly reset if calendar year changed
         if (currentYear > savedYear) {
             nextInv = 1
             nextQuo = 1
+            nextSheetQuo = 1
             prefs.edit()
                 .putInt("lastNumberingYear", currentYear)
                 .putInt("nextInvoiceNumber", 1)
                 .putInt("nextQuotationNumber", 1)
+                .putInt("nextSheetQuotationNumber", 1)
                 .apply()
         }
 
+        val defaultAddress = "Shop No # 1, Pak Watan Market, Main Road Ghori VIP, Express Way Islamabad"
+
         return BusinessSettings(
-            businessName = prefs.getString("businessName", "Chadhar Aluminium") ?: "Chadhar Aluminium",
+            businessName = prefs.getString("businessName", "CHADHAR ALUMINIUM") ?: "CHADHAR ALUMINIUM",
             ownerName = prefs.getString("ownerName", "Tasawar Ali Chadhar") ?: "Tasawar Ali Chadhar",
             phoneNumber = prefs.getString("phoneNumber", "0300-4439436") ?: "0300-4439436",
-            address = prefs.getString("address", "") ?: "",
+            phoneNumber2 = prefs.getString("phoneNumber2", "0318-4439436") ?: "0318-4439436",
+            address = prefs.getString("address", defaultAddress) ?: defaultAddress,
+            email = prefs.getString("email", "tasawrali04@gmail.com") ?: "tasawrali04@gmail.com",
+            website = prefs.getString("website", "www.chadharaluminium.com.pk") ?: "www.chadharaluminium.com.pk",
             logoUri = prefs.getString("logoUri", null),
             stampUri = prefs.getString("stampUri", null),
             defaultNotes = prefs.getString("defaultNotes", "50% advance required. Rate valid for 15 days.")
@@ -68,6 +80,7 @@ class SettingsRepository(context: Context) {
             showTutorial = prefs.getBoolean("showTutorial", true),
             nextInvoiceNumber = nextInv,
             nextQuotationNumber = nextQuo,
+            nextSheetQuotationNumber = nextSheetQuo,
             hasExportedBackup = prefs.getBoolean("hasExportedBackup", false),
             appPin = prefs.getString("appPin", null),
             isPinEnabled = prefs.getBoolean("isPinEnabled", false),
@@ -83,7 +96,10 @@ class SettingsRepository(context: Context) {
             .putString("businessName", newSettings.businessName)
             .putString("ownerName", newSettings.ownerName)
             .putString("phoneNumber", newSettings.phoneNumber)
+            .putString("phoneNumber2", newSettings.phoneNumber2)
             .putString("address", newSettings.address)
+            .putString("email", newSettings.email)
+            .putString("website", newSettings.website)
             .putString("logoUri", newSettings.logoUri)
             .putString("stampUri", updatedStamp)
             .putString("defaultNotes", newSettings.defaultNotes)
@@ -91,6 +107,7 @@ class SettingsRepository(context: Context) {
             .putBoolean("showTutorial", newSettings.showTutorial)
             .putInt("nextInvoiceNumber", newSettings.nextInvoiceNumber)
             .putInt("nextQuotationNumber", newSettings.nextQuotationNumber)
+            .putInt("nextSheetQuotationNumber", newSettings.nextSheetQuotationNumber)
             .putBoolean("hasExportedBackup", newSettings.hasExportedBackup)
             .putString("appPin", newSettings.appPin)
             .putBoolean("isPinEnabled", newSettings.isPinEnabled)
@@ -111,7 +128,8 @@ class SettingsRepository(context: Context) {
             currentSettings = currentSettings.copy(
                 lastNumberingYear = currentYear,
                 nextInvoiceNumber = 1,
-                nextQuotationNumber = 1
+                nextQuotationNumber = 1,
+                nextSheetQuotationNumber = 1
             )
         }
 
@@ -120,6 +138,10 @@ class SettingsRepository(context: Context) {
             val count = currentSettings.nextInvoiceNumber
             docNumStr = "INV-$currentYear-${count.toString().padStart(3, '0')}"
             updateSettings(currentSettings.copy(nextInvoiceNumber = count + 1, lastNumberingYear = currentYear))
+        } else if (docType.equals("SHEET_QUOTATION", ignoreCase = true)) {
+            val count = currentSettings.nextSheetQuotationNumber
+            docNumStr = "SQ-$currentYear-${count.toString().padStart(3, '0')}"
+            updateSettings(currentSettings.copy(nextSheetQuotationNumber = count + 1, lastNumberingYear = currentYear))
         } else {
             val count = currentSettings.nextQuotationNumber
             docNumStr = "QUO-$currentYear-${count.toString().padStart(3, '0')}"

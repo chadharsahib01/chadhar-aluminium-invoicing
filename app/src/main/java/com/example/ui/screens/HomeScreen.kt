@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -182,10 +184,10 @@ fun HomeScreen(
     }
 
     Scaffold(
-        containerColor = SleekBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 0.5.dp
             ) {
                 Column {
@@ -203,7 +205,7 @@ fun HomeScreen(
                                     text = "Dashboard",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 20.sp,
-                                    color = Slate900
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         },
@@ -212,8 +214,8 @@ fun HomeScreen(
                             IconButton(onClick = onNavigateToClients) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Slate50,
-                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     modifier = Modifier.size(36.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
@@ -236,14 +238,14 @@ fun HomeScreen(
                             ) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Slate50,
-                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     modifier = Modifier.size(36.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Text(
                                             text = if (settings.language == "en") "UR" else "EN",
-                                            color = Slate800,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 11.sp
                                         )
@@ -267,7 +269,7 @@ fun HomeScreen(
                                         Icon(
                                             imageVector = if (settings.isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                                             contentDescription = "Toggle Theme",
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = PrimaryBlue,
                                             modifier = Modifier.size(18.dp)
                                         )
                                     }
@@ -278,24 +280,24 @@ fun HomeScreen(
                             IconButton(onClick = onNavigateToSettings) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Slate50,
-                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     modifier = Modifier.size(36.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
                                             imageVector = Icons.Default.Settings,
                                             contentDescription = "Settings",
-                                            tint = Slate700,
+                                            tint = MaterialTheme.colorScheme.onSurface,
                                             modifier = Modifier.size(18.dp)
                                         )
                                     }
                                 }
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                     )
-                    HorizontalDivider(color = SleekCardBorder, thickness = 1.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 }
             }
         }
@@ -316,13 +318,13 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 22.sp,
-                            color = Slate900
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     )
                     Text(
                         text = "${settings.ownerName} • ${settings.phoneNumber}",
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Slate500,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp
                         )
                     )
@@ -333,8 +335,8 @@ fun HomeScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, SleekCardBorder),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
@@ -350,7 +352,7 @@ fun HomeScreen(
                                 text = "THIS MONTH SUMMARY (${monthlySummary.monthName})",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
-                                color = Slate500,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 letterSpacing = 0.5.sp
                             )
                             Text(
@@ -361,23 +363,23 @@ fun HomeScreen(
                             )
                         }
 
-                        HorizontalDivider(color = SleekCardBorder, thickness = 1.dp)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column {
-                                Text(text = "Total Invoiced", fontSize = 12.sp, color = Slate500)
+                                Text(text = "Total Invoiced", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = "Rs. ${String.format("%,.0f", monthlySummary.totalAmountInvoiced)}",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
-                                    color = Slate900
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Received", fontSize = 12.sp, color = Slate500)
+                                Text(text = "Received", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = "Rs. ${String.format("%,.0f", monthlySummary.totalAmountReceived)}",
                                     fontWeight = FontWeight.Bold,
@@ -386,12 +388,12 @@ fun HomeScreen(
                                 )
                             }
                             Column(horizontalAlignment = Alignment.End) {
-                                Text(text = "Pending Due", fontSize = 12.sp, color = Slate500)
+                                Text(text = "Pending Due", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = "Rs. ${String.format("%,.0f", monthlySummary.totalPendingBalance)}",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp,
-                                    color = if (monthlySummary.totalPendingBalance > 0) Color(0xFFDC2626) else Slate900
+                                    color = if (monthlySummary.totalPendingBalance > 0) Color(0xFFDC2626) else MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -445,113 +447,177 @@ fun HomeScreen(
                 }
             }
 
-            // --- TWO PRIMARY ACTION CARDS ---
+            // --- PRIMARY ACTION CARDS ---
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    // New Invoice Card
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Prominent First Option: New Sheet Quotation Card
                     Card(
                         onClick = {
-                            viewModel.startNewDocument("INVOICE")
-                            onNavigateToNewDocument("INVOICE")
+                            viewModel.startNewDocument("SHEET_QUOTATION")
+                            onNavigateToNewDocument("SHEET_QUOTATION")
                         },
                         colors = CardDefaults.cardColors(containerColor = PrimaryBlue),
-                        shape = RoundedCornerShape(24.dp),
+                        shape = RoundedCornerShape(22.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(140.dp)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(
+                        Row(
                             modifier = Modifier
-                                .fillMaxSize()
+                                .fillMaxWidth()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.Start
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = Color.White.copy(alpha = 0.2f),
-                                modifier = Modifier.size(48.dp)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(14.dp)
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Description,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.size(26.dp)
+                                Surface(
+                                    shape = RoundedCornerShape(16.dp),
+                                    color = Color.White.copy(alpha = 0.2f),
+                                    modifier = Modifier.size(48.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(26.dp)
+                                        )
+                                    }
+                                }
+                                Column {
+                                    Text(
+                                        text = "New Sheet Quotation",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 17.sp,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "شیشے اور ایلومینیم کی شِیٹ کا نیا کوٹیشن",
+                                        fontSize = 11.sp,
+                                        color = PrimaryBlueLight,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
-
-                            Column {
-                                Text(
-                                    text = "New Invoice",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 17.sp,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "نئی انوائس",
-                                    fontSize = 12.sp,
-                                    color = PrimaryBlueLight,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(26.dp)
+                            )
                         }
                     }
 
-                    // New Quote Card
-                    Card(
-                        onClick = {
-                            viewModel.startNewDocument("QUOTATION")
-                            onNavigateToNewDocument("QUOTATION")
-                        },
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        shape = RoundedCornerShape(24.dp),
-                        border = BorderStroke(1.dp, SleekCardBorder),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(140.dp)
+                    // Secondary Action Row: New Invoice & New Quote
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column(
+                        // New Invoice Card
+                        Card(
+                            onClick = {
+                                viewModel.startNewDocument("INVOICE")
+                                onNavigateToNewDocument("INVOICE")
+                            },
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, SleekCardBorder),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.Start
+                                .weight(1f)
+                                .height(110.dp)
                         ) {
-                            Surface(
-                                shape = RoundedCornerShape(16.dp),
-                                color = PrimaryBlueLight,
-                                modifier = Modifier.size(48.dp)
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(14.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.Start
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = Icons.Default.Description,
-                                        contentDescription = null,
-                                        tint = PrimaryBlue,
-                                        modifier = Modifier.size(26.dp)
+                                Surface(
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = PrimaryBlueLight,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = PrimaryBlue,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    }
+                                }
+
+                                Column {
+                                    Text(
+                                        text = "New Invoice",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        color = Slate900
+                                    )
+                                    Text(
+                                        text = "نئی انوائس",
+                                        fontSize = 11.sp,
+                                        color = Slate400,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
+                        }
 
-                            Column {
-                                Text(
-                                    text = "New Quote",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 17.sp,
-                                    color = Slate900
-                                )
-                                Text(
-                                    text = "نیا کوٹیشن",
-                                    fontSize = 12.sp,
-                                    color = Slate400,
-                                    fontWeight = FontWeight.Medium
-                                )
+                        // New Quote Card
+                        Card(
+                            onClick = {
+                                viewModel.startNewDocument("QUOTATION")
+                                onNavigateToNewDocument("QUOTATION")
+                            },
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(20.dp),
+                            border = BorderStroke(1.dp, SleekCardBorder),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(110.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(14.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(14.dp),
+                                    color = QuotationOrangeLight,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = QuotationOrange,
+                                            modifier = Modifier.size(22.dp)
+                                        )
+                                    }
+                                }
+
+                                Column {
+                                    Text(
+                                        text = "New Quote",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        color = Slate900
+                                    )
+                                    Text(
+                                        text = "نیا کوٹیشن",
+                                        fontSize = 11.sp,
+                                        color = Slate400,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
                             }
                         }
                     }
@@ -611,7 +677,10 @@ fun HomeScreen(
                     )
 
                     // Filter Pills
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         FilterChip(
                             selected = filterType == "ALL",
                             onClick = { viewModel.setFilterType("ALL") },
@@ -626,6 +695,23 @@ fun HomeScreen(
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
                                 selected = filterType == "ALL",
+                                borderColor = SleekCardBorder
+                            )
+                        )
+                        FilterChip(
+                            selected = filterType == "SHEET_QUOTATION",
+                            onClick = { viewModel.setFilterType("SHEET_QUOTATION") },
+                            label = { Text("Sheet Quotes", fontWeight = FontWeight.Bold) },
+                            shape = RoundedCornerShape(20.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = PrimaryBlueLight,
+                                selectedLabelColor = PrimaryBlue,
+                                containerColor = Color.White,
+                                labelColor = Slate500
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = filterType == "SHEET_QUOTATION",
                                 borderColor = SleekCardBorder
                             )
                         )
@@ -649,7 +735,7 @@ fun HomeScreen(
                         FilterChip(
                             selected = filterType == "QUOTATION",
                             onClick = { viewModel.setFilterType("QUOTATION") },
-                            label = { Text("Quotations", fontWeight = FontWeight.Bold) },
+                            label = { Text("Standard Quotes", fontWeight = FontWeight.Bold) },
                             shape = RoundedCornerShape(20.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = QuotationOrangeLight,

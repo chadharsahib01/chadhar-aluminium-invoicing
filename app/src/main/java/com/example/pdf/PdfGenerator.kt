@@ -34,6 +34,10 @@ object PdfGenerator {
         items: List<DocumentItemEntity>,
         settings: BusinessSettings
     ): PdfResult? {
+        if (document.documentType.equals("SHEET_QUOTATION", ignoreCase = true)) {
+            return generateSheetQuotationPdf(context, document, items, settings)
+        }
+
         val pdfDocument = PdfDocument()
 
         // Standard A4 dimensions in points: 595 x 842
@@ -215,20 +219,41 @@ object PdfGenerator {
 
         // Logo
         var startTextX = 25f
+        var logoBitmap: Bitmap? = null
+
         if (!settings.logoUri.isNullOrEmpty()) {
             try {
                 val logoUri = Uri.parse(settings.logoUri)
                 val inputStream = context.contentResolver.openInputStream(logoUri)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
+                logoBitmap = BitmapFactory.decodeStream(inputStream)
                 inputStream?.close()
-                if (bitmap != null) {
-                    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, 55, 55, true)
-                    canvas.drawBitmap(scaledBitmap, 25f, 30f, null)
-                    startTextX = 90f
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        if (logoBitmap == null) {
+            try {
+                logoBitmap = BitmapFactory.decodeResource(context.resources, com.example.R.drawable.chadhar_logo_transparent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (logoBitmap != null) {
+            val maxW = 75f
+            val maxH = 65f
+            val srcW = logoBitmap.width.toFloat()
+            val srcH = logoBitmap.height.toFloat()
+            val scale = Math.min(maxW / srcW, maxH / srcH)
+            val dstW = (srcW * scale).toInt().coerceAtLeast(1)
+            val dstH = (srcH * scale).toInt().coerceAtLeast(1)
+            val scaledBitmap = Bitmap.createScaledBitmap(logoBitmap, dstW, dstH, true)
+            
+            // Vertically center logo within header top band (height 115f)
+            val logoY = (115f - dstH) / 2f
+            canvas.drawBitmap(scaledBitmap, 25f, logoY, null)
+            startTextX = 25f + dstW + 14f
         }
 
         // Business Name & Owner Info (Left Side)
@@ -616,5 +641,371 @@ object PdfGenerator {
 
     private fun formatMoney(valNum: Double): String {
         return String.format("%,.2f", valNum)
+    }
+
+    private fun generateSheetQuotationPdf(
+        context: Context,
+        document: DocumentEntity,
+        items: List<DocumentItemEntity>,
+        settings: BusinessSettings
+    ): PdfResult? {
+        val pdfDocument = PdfDocument()
+
+        val pageWidth = 595
+        val pageHeight = 842
+        val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+        val page = pdfDocument.startPage(pageInfo)
+        val canvas: Canvas = page.canvas
+
+        // --- PAINTS & FONTS ---
+        val textHeaderTitle = Paint().apply {
+            color = Color.BLACK
+            textSize = 18f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        val textHeaderSub = Paint().apply {
+            color = Color.BLACK
+            textSize = 8.5f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        val textDocTitle = Paint().apply {
+            color = Color.BLACK
+            textSize = 16f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isUnderlineText = true
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+
+        val textMetaBold = Paint().apply {
+            color = Color.BLACK
+            textSize = 9.5f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        val textMetaVal = Paint().apply {
+            color = Color.BLACK
+            textSize = 9.5f
+            isAntiAlias = true
+        }
+
+        val tableHeaderBg = Paint().apply {
+            color = Color.parseColor("#E2E8F0")
+            isAntiAlias = true
+        }
+
+        val tableHeaderFont = Paint().apply {
+            color = Color.BLACK
+            textSize = 9.5f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        val borderStroke = Paint().apply {
+            color = Color.BLACK
+            style = Paint.Style.STROKE
+            strokeWidth = 1f
+            isAntiAlias = true
+        }
+
+        val cellTextFont = Paint().apply {
+            color = Color.BLACK
+            textSize = 8.5f
+            isAntiAlias = true
+        }
+
+        val cellTextFontBold = Paint().apply {
+            color = Color.BLACK
+            textSize = 8.5f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            isAntiAlias = true
+        }
+
+        val cellTextRight = Paint().apply {
+            color = Color.BLACK
+            textSize = 8.5f
+            textAlign = Paint.Align.RIGHT
+            isAntiAlias = true
+        }
+
+        // --- 1. HEADER SECTION WITH LOGO ---
+        val margin = 30f
+        var currentY = 35f
+
+        var logoBitmap: Bitmap? = null
+        if (!settings.logoUri.isNullOrEmpty()) {
+            try {
+                val logoUri = Uri.parse(settings.logoUri)
+                val inputStream = context.contentResolver.openInputStream(logoUri)
+                logoBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        if (logoBitmap == null) {
+            try {
+                logoBitmap = BitmapFactory.decodeResource(context.resources, com.example.R.drawable.chadhar_logo_transparent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        var textStartX = margin
+        if (logoBitmap != null) {
+            val maxW = 85f
+            val maxH = 68f
+            val srcW = logoBitmap.width.toFloat()
+            val srcH = logoBitmap.height.toFloat()
+            val scale = Math.min(maxW / srcW, maxH / srcH)
+            val dstW = (srcW * scale).toInt().coerceAtLeast(1)
+            val dstH = (srcH * scale).toInt().coerceAtLeast(1)
+            val scaledLogo = Bitmap.createScaledBitmap(logoBitmap, dstW, dstH, true)
+            
+            canvas.drawBitmap(scaledLogo, margin, currentY, null)
+            textStartX = margin + dstW + 14f
+        }
+        canvas.drawText(settings.businessName, textStartX, currentY + 16f, textHeaderTitle)
+
+        val shopAddr = if (settings.address.isNotBlank()) settings.address else "Shop No # 1, Pak Watan Market, Main Road Ghori VIP, Express Way Islamabad"
+        canvas.drawText(shopAddr, textStartX, currentY + 30f, textHeaderSub)
+
+        val phone1 = settings.phoneNumber.ifBlank { "0300-4439436" }
+        val phone2 = settings.phoneNumber2.ifBlank { "0318-4439436" }
+        canvas.drawText("PH: $phone1 - $phone2", textStartX, currentY + 42f, textHeaderSub)
+
+        val email = settings.email.ifBlank { "tasawrali04@gmail.com" }
+        canvas.drawText("EMAIL: $email", textStartX, currentY + 54f, textHeaderSub)
+
+        currentY += 75f
+
+        // Document Title: QUOTATION
+        canvas.drawText("QUOTATION", pageWidth / 2f, currentY, textDocTitle)
+
+        currentY += 25f
+
+        // --- 2. METADATA SECTION (2 COLUMNS) ---
+        val leftMetaX = margin
+        val rightMetaX = 380f
+
+        // Left Column
+        canvas.drawText("QUOT NO:", leftMetaX, currentY, textMetaBold)
+        canvas.drawText(document.documentNumber, leftMetaX + 65f, currentY, textMetaVal)
+
+        canvas.drawText("CLIENT:", leftMetaX, currentY + 16f, textMetaBold)
+        canvas.drawText(document.clientName, leftMetaX + 65f, currentY + 16f, textMetaVal)
+
+        canvas.drawText("SITE:", leftMetaX, currentY + 32f, textMetaBold)
+        canvas.drawText(document.siteLocation.ifBlank { "N/A" }, leftMetaX + 65f, currentY + 32f, textMetaVal)
+
+        // Right Column
+        canvas.drawText("DATE:", rightMetaX, currentY, textMetaBold)
+        canvas.drawText(document.date, rightMetaX + 75f, currentY, textMetaVal)
+
+        canvas.drawText("MOBILE NO:", rightMetaX, currentY + 16f, textMetaBold)
+        canvas.drawText(document.clientPhone.ifBlank { "N/A" }, rightMetaX + 75f, currentY + 16f, textMetaVal)
+
+        currentY += 48f
+
+        // --- 3. ITEMS TABLE ---
+        val tableLeft = margin
+        val tableRight = pageWidth - margin
+        val colSrW = 28f
+        val colAreaW = 75f
+        val colRateW = 75f
+        val colTotalW = 85f
+        val colDescW = (tableRight - tableLeft) - colSrW - colAreaW - colRateW - colTotalW
+
+        val colSrX = tableLeft
+        val colDescX = colSrX + colSrW
+        val colAreaX = colDescX + colDescW
+        val colRateX = colAreaX + colAreaW
+        val colTotalX = colRateX + colRateW
+
+        // Table Header
+        val headerHeight = 22f
+        val headerRect = RectF(tableLeft, currentY, tableRight, currentY + headerHeight)
+        canvas.drawRect(headerRect, tableHeaderBg)
+        canvas.drawRect(headerRect, borderStroke)
+
+        // Vertical lines for header
+        canvas.drawLine(colDescX, currentY, colDescX, currentY + headerHeight, borderStroke)
+        canvas.drawLine(colAreaX, currentY, colAreaX, currentY + headerHeight, borderStroke)
+        canvas.drawLine(colRateX, currentY, colRateX, currentY + headerHeight, borderStroke)
+        canvas.drawLine(colTotalX, currentY, colTotalX, currentY + headerHeight, borderStroke)
+
+        canvas.drawText("Sr.", colSrX + 6f, currentY + 15f, tableHeaderFont)
+        canvas.drawText("Description", colDescX + 6f, currentY + 15f, tableHeaderFont)
+        canvas.drawText("Area Sq Ft", colAreaX + 6f, currentY + 15f, tableHeaderFont)
+        canvas.drawText("Rate Sq Ft", colRateX + 6f, currentY + 15f, tableHeaderFont)
+        canvas.drawText("Total", colTotalX + 6f, currentY + 15f, tableHeaderFont)
+
+        currentY += headerHeight
+
+        // Table Data Rows
+        items.forEachIndexed { idx, item ->
+            val lines = wrapText(item.itemName, colDescW - 12f, cellTextFont)
+            val rowHeight = (lines.size * 12f + 12f).coerceAtLeast(24f)
+
+            val rowRect = RectF(tableLeft, currentY, tableRight, currentY + rowHeight)
+            canvas.drawRect(rowRect, borderStroke)
+
+            canvas.drawLine(colDescX, currentY, colDescX, currentY + rowHeight, borderStroke)
+            canvas.drawLine(colAreaX, currentY, colAreaX, currentY + rowHeight, borderStroke)
+            canvas.drawLine(colRateX, currentY, colRateX, currentY + rowHeight, borderStroke)
+            canvas.drawLine(colTotalX, currentY, colTotalX, currentY + rowHeight, borderStroke)
+
+            // Sr.
+            canvas.drawText("${idx + 1}", colSrX + 6f, currentY + 14f, cellTextFont)
+
+            // Description lines
+            lines.forEachIndexed { lIdx, lineStr ->
+                val fontToUse = if (lIdx == 0 && lines.size > 1) cellTextFontBold else cellTextFont
+                canvas.drawText(lineStr, colDescX + 6f, currentY + 14f + (lIdx * 12f), fontToUse)
+            }
+
+            // Area Sq Ft
+            canvas.drawText(formatDouble(item.quantity), colAreaX + 6f, currentY + 14f, cellTextFont)
+
+            // Rate Sq Ft
+            canvas.drawText(formatMoney(item.rate), colRateX + 6f, currentY + 14f, cellTextFont)
+
+            // Total
+            canvas.drawText(formatMoney(item.amount), colTotalX + colTotalW - 6f, currentY + 14f, cellTextRight)
+
+            currentY += rowHeight
+        }
+
+        currentY += 16f
+
+        // --- 4. TOTALS BOX (BOTTOM-RIGHT) ---
+        val totalsBoxW = 230f
+        val totalsBoxLeft = tableRight - totalsBoxW
+        val totalLabelW = 120f
+        val totalValX = totalsBoxLeft + totalLabelW
+
+        val extraDiscount = document.discount
+        val receivedAmount = document.amountPaid
+        val estimatedTotal = (document.subtotal - extraDiscount - receivedAmount).coerceAtLeast(0.0)
+
+        val totalsRows = listOf(
+            Pair("GROSS TOTAL :", formatMoney(document.subtotal)),
+            Pair("EXTRA DISCOUNT :", formatMoney(extraDiscount)),
+            Pair("RECEIVED AMOUNT :", formatMoney(receivedAmount)),
+            Pair("ESTIMATED TOTAL :", formatMoney(estimatedTotal))
+        )
+
+        val totalsRowH = 20f
+        totalsRows.forEach { (label, value) ->
+            val rRect = RectF(totalsBoxLeft, currentY, tableRight, currentY + totalsRowH)
+            val lblRect = RectF(totalsBoxLeft, currentY, totalValX, currentY + totalsRowH)
+
+            canvas.drawRect(lblRect, tableHeaderBg)
+            canvas.drawRect(rRect, borderStroke)
+            canvas.drawLine(totalValX, currentY, totalValX, currentY + totalsRowH, borderStroke)
+
+            canvas.drawText(label, totalsBoxLeft + 6f, currentY + 14f, tableHeaderFont)
+            canvas.drawText("Rs. $value", tableRight - 6f, currentY + 14f, cellTextRight)
+
+            currentY += totalsRowH
+        }
+
+        // --- 5. ADDITIONAL NOTES (if present) ---
+        if (document.notes.isNotBlank()) {
+            currentY += 12f
+            canvas.drawText("Additional Notes / Other Details:", margin, currentY, textMetaBold)
+            currentY += 14f
+            val noteLines = wrapText(document.notes, pageWidth - (2 * margin), cellTextFont)
+            noteLines.forEach { nLine ->
+                canvas.drawText(nLine, margin, currentY, cellTextFont)
+                currentY += 12f
+            }
+        }
+
+        // --- 6. PAGE FOOTER ---
+        val footerY = pageHeight - 35f
+
+        val dashPaint = Paint().apply {
+            color = Color.BLACK
+            style = Paint.Style.STROKE
+            strokeWidth = 1f
+            pathEffect = android.graphics.DashPathEffect(floatArrayOf(6f, 4f), 0f)
+            isAntiAlias = true
+        }
+        canvas.drawLine(margin, footerY - 15f, pageWidth - margin, footerY - 15f, dashPaint)
+
+        val websiteStr = settings.website.ifBlank { "www.chadharaluminium.com.pk" }
+        val footerWebFont = Paint().apply {
+            color = Color.BLACK
+            textSize = 9.5f
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+        }
+        canvas.drawText(websiteStr, pageWidth / 2f, footerY, footerWebFont)
+
+        pdfDocument.finishPage(page)
+
+        return try {
+            val docsDir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Invoices")
+            if (!docsDir.exists()) {
+                docsDir.mkdirs()
+            }
+
+            val fileName = "${document.documentNumber}_${document.clientName.replace("[^a-zA-Z0-9]".toRegex(), "_")}.pdf"
+            val pdfFile = File(docsDir, fileName)
+
+            val outputStream = FileOutputStream(pdfFile)
+            pdfDocument.writeTo(outputStream)
+            outputStream.close()
+            pdfDocument.close()
+
+            val pdfUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                pdfFile
+            )
+
+            saveToPublicStorage(context, pdfFile, fileName)
+
+            PdfResult(pdfFile, pdfUri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            pdfDocument.close()
+            null
+        }
+    }
+
+    private fun wrapText(text: String, maxWidth: Float, paint: Paint): List<String> {
+        val result = mutableListOf<String>()
+        val paragraphs = text.split("\n")
+        for (paragraph in paragraphs) {
+            if (paragraph.isBlank()) {
+                result.add("")
+                continue
+            }
+            val words = paragraph.split(" ")
+            var currentLine = ""
+            for (word in words) {
+                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                val measure = paint.measureText(testLine)
+                if (measure > maxWidth && currentLine.isNotEmpty()) {
+                    result.add(currentLine)
+                    currentLine = word
+                } else {
+                    currentLine = testLine
+                }
+            }
+            if (currentLine.isNotEmpty()) {
+                result.add(currentLine)
+            }
+        }
+        return result
     }
 }

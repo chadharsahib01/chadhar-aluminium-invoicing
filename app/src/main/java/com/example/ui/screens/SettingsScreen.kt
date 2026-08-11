@@ -97,7 +97,10 @@ fun SettingsScreen(
     var businessName by remember(settings.businessName) { mutableStateOf(settings.businessName) }
     var ownerName by remember(settings.ownerName) { mutableStateOf(settings.ownerName) }
     var phoneNumber by remember(settings.phoneNumber) { mutableStateOf(settings.phoneNumber) }
+    var phoneNumber2 by remember(settings.phoneNumber2) { mutableStateOf(settings.phoneNumber2) }
     var address by remember(settings.address) { mutableStateOf(settings.address) }
+    var email by remember(settings.email) { mutableStateOf(settings.email) }
+    var website by remember(settings.website) { mutableStateOf(settings.website) }
     var logoUriStr by remember(settings.logoUri) { mutableStateOf(settings.logoUri) }
     var defaultNotes by remember(settings.defaultNotes) { mutableStateOf(settings.defaultNotes) }
 
@@ -158,32 +161,32 @@ fun SettingsScreen(
     }
 
     Scaffold(
-        containerColor = SleekBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 0.5.dp
             ) {
                 Column {
                     TopAppBar(
-                        title = { Text("Settings (سیٹنگز)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Slate900) },
+                        title = { Text("Settings (سیٹنگز)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface) },
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Slate50,
-                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     modifier = Modifier.size(36.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Slate800, modifier = Modifier.size(18.dp))
+                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(18.dp))
                                     }
                                 }
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                     )
-                    HorizontalDivider(color = SleekCardBorder, thickness = 1.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 }
             }
         }
@@ -199,8 +202,8 @@ fun SettingsScreen(
             item {
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = BorderStroke(1.dp, SleekCardBorder)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -213,7 +216,7 @@ fun SettingsScreen(
                                 text = "BUSINESS DETAILS (کاروبار کی معلومات)",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
-                                color = Slate900
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -224,40 +227,60 @@ fun SettingsScreen(
                         ) {
                             Surface(
                                 shape = RoundedCornerShape(14.dp),
-                                color = PrimaryBlueLight,
-                                modifier = Modifier.size(60.dp)
+                                color = Color.White,
+                                border = BorderStroke(1.dp, SleekCardBorder),
+                                modifier = Modifier.size(64.dp)
                             ) {
-                                if (!logoUriStr.isNullOrEmpty()) {
-                                    AsyncImage(
-                                        model = logoUriStr,
-                                        contentDescription = "Logo",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(RoundedCornerShape(14.dp))
-                                    )
+                                val logoModel: Any = if (!logoUriStr.isNullOrEmpty()) {
+                                    logoUriStr!!
                                 } else {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Icon(imageVector = Icons.Default.Image, contentDescription = null, tint = PrimaryBlue)
-                                    }
+                                    com.example.R.drawable.chadhar_logo_transparent
                                 }
+
+                                AsyncImage(
+                                    model = logoModel,
+                                    contentDescription = "Logo",
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(4.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                )
                             }
 
                             Spacer(modifier = Modifier.width(16.dp))
 
-                            OutlinedButton(
-                                onClick = { logoPickerLauncher.launch("image/*") },
-                                border = BorderStroke(1.dp, SleekCardBorder),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(
-                                    text = if (logoUriStr.isNullOrEmpty()) "+ Upload Logo" else "Change Logo",
-                                    color = Slate800,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(
+                                    onClick = { logoPickerLauncher.launch("image/*") },
+                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = "Change Logo",
+                                        color = Slate800,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                if (!logoUriStr.isNullOrEmpty()) {
+                                    OutlinedButton(
+                                        onClick = {
+                                            logoUriStr = null
+                                            viewModel.updateSettings(settings.copy(logoUri = null))
+                                            Toast.makeText(context, "Reset to default logo", Toast.LENGTH_SHORT).show()
+                                        },
+                                        border = BorderStroke(1.dp, SleekCardBorder),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Text(
+                                            text = "Reset Default",
+                                            color = Slate500,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                }
                             }
                         }
 
@@ -294,7 +317,23 @@ fun SettingsScreen(
                         OutlinedTextField(
                             value = phoneNumber,
                             onValueChange = { phoneNumber = it },
-                            label = { Text("Phone Number", color = Slate500) },
+                            label = { Text("Phone Number 1", color = Slate500) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Slate900,
+                                unfocusedTextColor = Slate900,
+                                focusedBorderColor = PrimaryBlue,
+                                unfocusedBorderColor = SleekCardBorder
+                            ),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = phoneNumber2,
+                            onValueChange = { phoneNumber2 = it },
+                            label = { Text("Phone Number 2 (Optional)", color = Slate500) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Slate900,
@@ -310,7 +349,38 @@ fun SettingsScreen(
                         OutlinedTextField(
                             value = address,
                             onValueChange = { address = it },
-                            label = { Text("Business Address (Optional)", color = Slate500) },
+                            label = { Text("Shop Address", color = Slate500) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Slate900,
+                                unfocusedTextColor = Slate900,
+                                focusedBorderColor = PrimaryBlue,
+                                unfocusedBorderColor = SleekCardBorder
+                            ),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email Address", color = Slate500) },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Slate900,
+                                unfocusedTextColor = Slate900,
+                                focusedBorderColor = PrimaryBlue,
+                                unfocusedBorderColor = SleekCardBorder
+                            ),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        OutlinedTextField(
+                            value = website,
+                            onValueChange = { website = it },
+                            label = { Text("Website URL", color = Slate500) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = Slate900,
                                 unfocusedTextColor = Slate900,
@@ -343,7 +413,10 @@ fun SettingsScreen(
                                         businessName = businessName,
                                         ownerName = ownerName,
                                         phoneNumber = phoneNumber,
+                                        phoneNumber2 = phoneNumber2,
                                         address = address,
+                                        email = email,
+                                        website = website,
                                         logoUri = logoUriStr,
                                         defaultNotes = defaultNotes
                                     )

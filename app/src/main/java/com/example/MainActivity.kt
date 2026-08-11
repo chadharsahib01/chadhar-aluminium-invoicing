@@ -26,6 +26,7 @@ import com.example.ui.screens.ClientDetailScreen
 import com.example.ui.screens.ClientsListScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.NewDocumentScreen
+import com.example.ui.screens.NewSheetQuotationScreen
 import com.example.ui.screens.PinLockScreen
 import com.example.ui.screens.PreviewShareScreen
 import com.example.ui.screens.SettingsScreen
@@ -92,10 +93,20 @@ fun ChadharAluminiumApp(mainViewModel: MainViewModel = viewModel()) {
             HomeScreen(
                 viewModel = mainViewModel,
                 onNavigateToNewDocument = { docType ->
-                    navController.navigate("new_document/$docType")
+                    if (docType.equals("SHEET_QUOTATION", ignoreCase = true)) {
+                        navController.navigate("new_sheet_quotation")
+                    } else {
+                        navController.navigate("new_document/$docType")
+                    }
                 },
                 onNavigateToEditDocument = { docId ->
-                    navController.navigate("new_document/INVOICE")
+                    mainViewModel.loadDocumentForEdit(docId)
+                    val loadedDocType = mainViewModel.activeDocument.value.documentType
+                    if (loadedDocType.equals("SHEET_QUOTATION", ignoreCase = true)) {
+                        navController.navigate("new_sheet_quotation")
+                    } else {
+                        navController.navigate("new_document/$loadedDocType")
+                    }
                 },
                 onNavigateToPreview = {
                     navController.navigate("preview")
@@ -140,9 +151,33 @@ fun ChadharAluminiumApp(mainViewModel: MainViewModel = viewModel()) {
             arguments = listOf(navArgument("docType") { type = NavType.StringType })
         ) { backStackEntry ->
             val docType = backStackEntry.arguments?.getString("docType") ?: "INVOICE"
-            NewDocumentScreen(
+            if (docType.equals("SHEET_QUOTATION", ignoreCase = true)) {
+                NewSheetQuotationScreen(
+                    viewModel = mainViewModel,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToPreview = {
+                        navController.navigate("preview")
+                    }
+                )
+            } else {
+                NewDocumentScreen(
+                    viewModel = mainViewModel,
+                    docType = docType,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onNavigateToPreview = {
+                        navController.navigate("preview")
+                    }
+                )
+            }
+        }
+
+        composable("new_sheet_quotation") {
+            NewSheetQuotationScreen(
                 viewModel = mainViewModel,
-                docType = docType,
                 onNavigateBack = {
                     navController.popBackStack()
                 },

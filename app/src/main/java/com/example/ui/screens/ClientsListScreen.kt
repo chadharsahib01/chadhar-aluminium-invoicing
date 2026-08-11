@@ -78,10 +78,10 @@ fun ClientsListScreen(
     }
 
     Scaffold(
-        containerColor = SleekBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 0.5.dp
             ) {
                 Column {
@@ -91,26 +91,26 @@ fun ClientsListScreen(
                                 text = "Client Address Book (گاہکوں کی فہرست)",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
-                                color = Slate900
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
                                 Surface(
                                     shape = CircleShape,
-                                    color = Slate50,
-                                    border = BorderStroke(1.dp, SleekCardBorder),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                     modifier = Modifier.size(36.dp)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Slate800, modifier = Modifier.size(18.dp))
+                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(18.dp))
                                     }
                                 }
                             }
                         },
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                     )
-                    HorizontalDivider(color = SleekCardBorder, thickness = 1.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 }
             }
         }
@@ -125,13 +125,14 @@ fun ClientsListScreen(
             OutlinedTextField(
                 value = searchClientText,
                 onValueChange = { searchClientText = it },
-                placeholder = { Text("Search client name or phone...", color = Slate400) },
-                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Slate500) },
+                placeholder = { Text("Search client name or phone...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Slate900,
-                    unfocusedTextColor = Slate900,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     focusedBorderColor = PrimaryBlue,
-                    unfocusedBorderColor = SleekCardBorder
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    containerColor = MaterialTheme.colorScheme.surface
                 ),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -157,8 +158,8 @@ fun ClientsListScreen(
 
                         Card(
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            border = BorderStroke(1.dp, SleekCardBorder),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { onSelectClient(client.name) }
@@ -187,17 +188,17 @@ fun ClientsListScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
 
                                     Column {
-                                        Text(text = client.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Slate900)
+                                        Text(text = client.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(imageVector = Icons.Default.Phone, contentDescription = null, tint = Slate500, modifier = Modifier.size(12.dp))
+                                            Icon(imageVector = Icons.Default.Phone, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(12.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text(text = if (client.phone.isNotBlank()) client.phone else "No Phone", fontSize = 13.sp, color = Slate500)
+                                            Text(text = if (client.phone.isNotBlank()) client.phone else "No Phone", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         Text(text = "$docCount Document(s)  •  Balance Due: Rs. ${String.format("%,.0f", remainingDue)}", fontSize = 12.sp, color = if (remainingDue > 0) Color(0xFFDC2626) else PrimaryBlue)
                                     }
                                 }
 
-                                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = Slate400)
+                                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }

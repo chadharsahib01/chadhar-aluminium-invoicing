@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "documents")
 data class DocumentEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val documentType: String, // "INVOICE" or "QUOTATION"
-    val documentNumber: String, // e.g., "INV-2026-001" or "QUO-2026-001"
+    val documentType: String, // "INVOICE", "QUOTATION", or "SHEET_QUOTATION"
+    val documentNumber: String, // e.g., "INV-2026-001", "QUO-2026-001", "SQ-2026-001"
     val date: String,
     val clientName: String,
     val clientPhone: String,
@@ -26,5 +26,6 @@ data class DocumentEntity(
     val amountPaid: Double = 0.0,
     val discountType: String = "FIXED", // "FIXED" or "PERCENTAGE"
     val discountValue: Double = 0.0,
-    val sitePhotosJson: String = "" // JSON list of image URIs
+    val sitePhotosJson: String = "", // JSON list of image URIs
+    val siteLocation: String = "" // Site location for Sheet Quotation
 )

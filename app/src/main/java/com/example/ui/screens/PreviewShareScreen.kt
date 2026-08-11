@@ -69,7 +69,12 @@ fun PreviewShareScreen(
     val settings by viewModel.settings.collectAsState()
 
     val isInvoice = activeDoc.documentType.equals("INVOICE", ignoreCase = true)
-    val docTitle = if (isInvoice) "INVOICE ${activeDoc.documentNumber}" else "QUOTATION ${activeDoc.documentNumber}"
+    val isSheetQuote = activeDoc.documentType.equals("SHEET_QUOTATION", ignoreCase = true)
+    val docTitle = when {
+        isSheetQuote -> "SHEET QUOTATION ${activeDoc.documentNumber}"
+        isInvoice -> "INVOICE ${activeDoc.documentNumber}"
+        else -> "QUOTATION ${activeDoc.documentNumber}"
+    }
     val primaryBgColor = if (isInvoice) PrimaryBlue else QuotationGreen
 
     Scaffold(

@@ -51,13 +51,14 @@ data class DraftItem(
 
 data class ActiveDocumentState(
     val editingDocId: Long? = null,
-    val documentType: String = "INVOICE", // "INVOICE" or "QUOTATION"
+    val documentType: String = "INVOICE", // "INVOICE", "QUOTATION", or "SHEET_QUOTATION"
     val documentNumber: String = "",
     val date: String = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH).format(Date()),
     val dueDate: String = "",
     val clientName: String = "",
     val clientPhone: String = "",
     val clientAddress: String = "",
+    val siteLocation: String = "",
     val items: List<DraftItem> = emptyList(),
     val discountType: String = "FIXED", // "FIXED" or "PERCENTAGE"
     val discountValue: Double = 0.0,
@@ -152,11 +153,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     doc.clientName.contains(query, ignoreCase = true) ||
                     doc.documentNumber.contains(query, ignoreCase = true) ||
                     doc.date.contains(query, ignoreCase = true) ||
-                    doc.clientPhone.contains(query, ignoreCase = true)
+                    doc.clientPhone.contains(query, ignoreCase = true) ||
+                    doc.siteLocation.contains(query, ignoreCase = true)
 
             val matchesFilter = when (filter) {
                 "INVOICE" -> doc.documentType.equals("INVOICE", ignoreCase = true)
                 "QUOTATION" -> doc.documentType.equals("QUOTATION", ignoreCase = true)
+                "SHEET_QUOTATION" -> doc.documentType.equals("SHEET_QUOTATION", ignoreCase = true)
                 else -> true
             }
 
@@ -249,9 +252,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         settingsRepository.dismissTutorial()
     }
 
+    fun updateSiteLocation(site: String) {
+        _activeDocument.value = _activeDocument.value.copy(siteLocation = site)
+    }
+
     fun startNewDocument(type: String) {
         val nextDocNum = settingsRepository.incrementDocNumber(type)
-        val defaultNotes = settings.value.defaultNotes
+        val defaultNotes = if (type.equals("SHEET_QUOTATION", ignoreCase = true)) "" else settings.value.defaultNotes
         
         _activeDocument.value = ActiveDocumentState(
             editingDocId = null,
@@ -262,6 +269,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             clientName = "",
             clientPhone = "",
             clientAddress = "",
+            siteLocation = "",
             items = emptyList(),
             discountType = "FIXED",
             discountValue = 0.0,
@@ -309,6 +317,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     clientName = doc.clientName,
                     clientPhone = doc.clientPhone,
                     clientAddress = doc.clientAddress,
+                    siteLocation = doc.siteLocation,
                     items = draftItems,
                     discountType = doc.discountType,
                     discountValue = doc.discountValue,
@@ -416,6 +425,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             date = date,
             dueDate = dueDate
         )
+    }
+
+    fun updateDocumentNumber(num: String) {
+        _activeDocument.value = _activeDocument.value.copy(documentNumber = num)
+    }
+
+    fun updateDate(dateStr: String) {
+        _activeDocument.value = _activeDocument.value.copy(date = dateStr)
+    }
+
+    fun removeItemFromDraft(item: DraftItem) {
+        val currentItems = _activeDocument.value.items.toMutableList()
+        currentItems.remove(item)
+        _activeDocument.value = _activeDocument.value.copy(items = currentItems)
+    }
+
+    fun updateDiscount(type: String, value: Double) {
+        _activeDocument.value = _activeDocument.value.copy(discountType = type, discountValue = value)
+    }
+
+    fun updateNotes(notesStr: String) {
+        _activeDocument.value = _activeDocument.value.copy(notes = notesStr)
+    }
+
+    fun updateDraftItems(newItems: List<DraftItem>) {
+        _activeDocument.value = _activeDocument.value.copy(items = newItems)
     }
 
     fun updateTotalsAndNotes(
@@ -628,7 +663,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             amountPaid = currState.amountPaid,
             discountType = currState.discountType,
             discountValue = currState.discountValue,
-            sitePhotosJson = photosJson
+            sitePhotosJson = photosJson,
+            siteLocation = currState.siteLocation
         )
 
         val itemEntities = currState.items.map { item ->
