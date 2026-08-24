@@ -233,11 +233,7 @@ object PdfGenerator {
         }
 
         if (logoBitmap == null) {
-            try {
-                logoBitmap = BitmapFactory.decodeResource(context.resources, com.example.R.drawable.chadhar_logo_transparent)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            logoBitmap = getBitmapFromDrawable(context, com.example.R.drawable.ic_chadhar_logo)
         }
 
         if (logoBitmap != null) {
@@ -750,11 +746,7 @@ object PdfGenerator {
         }
 
         if (logoBitmap == null) {
-            try {
-                logoBitmap = BitmapFactory.decodeResource(context.resources, com.example.R.drawable.chadhar_logo_transparent)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            logoBitmap = getBitmapFromDrawable(context, com.example.R.drawable.ic_chadhar_logo)
         }
 
         var textStartX = margin
@@ -1007,5 +999,21 @@ object PdfGenerator {
             }
         }
         return result
+    }
+
+    private fun getBitmapFromDrawable(context: Context, drawableId: Int): Bitmap? {
+        return try {
+            val drawable = androidx.core.content.ContextCompat.getDrawable(context, drawableId) ?: return null
+            val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 400
+            val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 300
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            bitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

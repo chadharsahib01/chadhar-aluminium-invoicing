@@ -67,7 +67,7 @@ fun SplashScreen(
                 .alpha(alpha.value)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.chadhar_logo_transparent),
+                painter = painterResource(id = R.drawable.ic_chadhar_logo),
                 contentDescription = "Chadhar Aluminium Logo",
                 modifier = Modifier
                     .fillMaxWidth(0.85f)

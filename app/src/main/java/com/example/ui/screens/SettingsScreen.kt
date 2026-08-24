@@ -235,7 +235,7 @@ fun SettingsScreen(
                                 val logoModel: Any = if (!logoUriStr.isNullOrEmpty()) {
                                     logoUriStr!!
                                 } else {
-                                    com.example.R.drawable.chadhar_logo_transparent
+                                    com.example.R.drawable.ic_chadhar_logo
                                 }
 
                                 AsyncImage(
